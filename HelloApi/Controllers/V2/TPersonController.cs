@@ -1,47 +1,46 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using HelloApi.Data;
+using HelloApi.Entities;
 using HelloApi.Models.V2; // Add this if TPerson is in Models namespace
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HelloApi.Controllers.V2
 {
     [ApiController]
-    [Route("api/v2/[controller]")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class TPersonController : ControllerBase
     {
-        private readonly HelloApiContext _context;
+        private readonly TPersonRepository _repository;
 
-        public TPersonController(HelloApiContext context)
+        public TPersonController(TPersonRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TPerson>>> GetAll()
         {
-            return await _context.TPersons.ToListAsync();
+            var entities = await _repository.GetAllAsync();
+            return entities.Select(e => MapToTPerson(e)).ToList();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TPerson>> GetById(int id)
         {
-            var person = await _context.TPersons.FindAsync(id);
-            if (person == null)
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
             {
                 return NotFound();
             }
-            return person;
+            return MapToTPerson(entity);
         }
 
         [HttpPost]
         public async Task<ActionResult<TPerson>> Create(TPerson person)
         {
-            _context.TPersons.Add(person);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = person.Id }, person);
+            var entity = MapToTPersonEntity(person);
+            await _repository.AddAsync(entity);
+            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, MapToTPerson(entity));
         }
 
         [HttpPut("{id}")]
@@ -52,19 +51,12 @@ namespace HelloApi.Controllers.V2
                 return BadRequest();
             }
 
-            _context.Entry(person).State = EntityState.Modified;
+            var entity = MapToTPersonEntity(person);
+            var updatedEntity = await _repository.UpdateAsync(entity);
 
-            try
+            if (updatedEntity == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TPersonExists(id))
-                {
-                    return NotFound();
-                }
-                throw;
+                return NotFound();
             }
 
             return NoContent();
@@ -73,21 +65,38 @@ namespace HelloApi.Controllers.V2
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var person = await _context.TPersons.FindAsync(id);
-            if (person == null)
+            var deleted = await _repository.DeleteAsync(id);
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            _context.TPersons.Remove(person);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        private bool TPersonExists(int id)
+        private TPerson MapToTPerson(TPersonEntity entity)
         {
-            return _context.TPersons.Any(e => e.Id == id);
+            return new TPerson
+            {
+                Id = entity.Id,
+                Nom = entity.Nom,
+                Prenom = entity.Prenom,
+                DateBorn = entity.DateBorn,
+                DateDead = entity.DateDead,
+                Nationalite = entity.Nationalite
+            };
+        }
+
+        private TPersonEntity MapToTPersonEntity(TPerson person)
+        {
+            return new TPersonEntity
+            {
+                Id = person.Id,
+                Nom = person.Nom,
+                Prenom = person.Prenom,
+                DateBorn = person.DateBorn,
+                DateDead = person.DateDead,
+                Nationalite = person.Nationalite
+            };
         }
     }
 }

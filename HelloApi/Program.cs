@@ -1,37 +1,22 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-
-builder.Services.AddApiVersioning(options =>
+public class Program
 {
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-});
-builder.Services.AddVersionedApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    foreach (var description in provider.ApiVersionDescriptions)
+    public static void Main(string[] args)
     {
-        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+        CreateHostBuilder(args).Build().Run();
     }
-});
 
-app.UseAuthorization();
-app.MapControllers();
-app.Run();
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.ConfigureServices(services =>
+                {
+                    services.AddTransient<Microsoft.AspNetCore.Mvc.ApiExplorer.IApiVersionDescriptionProvider, Microsoft.AspNetCore.Mvc.ApiExplorer.DefaultApiVersionDescriptionProvider>();
+                });
+                webBuilder.UseStartup<Startup>();
+            });
+}
