@@ -25,9 +25,9 @@ class Program
         var persons = new List<TPersonEntity>
         {
             new() { Nom = "raph", Prenom = "raph", DateBorn = new DateTime(2025, 9, 10) },
-            new() { Nom = "marie", Prenom = "curie", DaeBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
-            new() { Nom = "marc", Prenom = "curie", DaeBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
-            new() { Nom = "audric", Prenom = "curie", DaeBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
+            new() { Nom = "marie", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
+            //new() { Nom = "marc", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
+            //new() { Nom = "audric", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
         };
 
         string baseUrl = "https://192.168.1.25:5001/api/v1/TPerson/fromqr";
