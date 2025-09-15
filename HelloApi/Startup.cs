@@ -51,7 +51,10 @@ public class Startup
             o.SubstituteApiVersionInUrl = true;          // remplace {version:apiVersion} dans les routes
         });
 
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(c =>
+        {
+            c.EnableAnnotations(); // Active les attributs Swagger*
+        });
 
         // Ajoute la config Swagger qui génère un doc par version
         services.ConfigureOptions<ConfigureSwaggerOptions>();

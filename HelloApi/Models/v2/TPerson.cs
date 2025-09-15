@@ -16,7 +16,7 @@ namespace HelloApi.Models.V2
         public static implicit operator TPersonEntity(TPerson person)
         {
             if (person == null) return null;
-            return new TPersonneEntity
+            return new TPersonEntity
             {
                 Id = person.Id,
                 Nom = person.Nom,
