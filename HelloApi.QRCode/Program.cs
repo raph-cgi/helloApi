@@ -3,37 +3,46 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web;
+using HelloApi.Entities;
+using HelloApi.Models.V1;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using QRCoder;
 
-public class TPersonEntity
-{
-    public int Id { get; set; }
-    public string Nom { get; set; }
-    public string Prenom { get; set; }
-    public DateTime DateBorn { get; set; }
-    public DateTime? DateDead { get; set; }
-    public string? Nationalite { get; set; }
-}
+//public class TPersonEntity
+//{
+//    public int Id { get; set; }
+//    public string Nom { get; set; }
+//    public string Prenom { get; set; }
+//    public DateTime DateBorn { get; set; }
+//    public DateTime? DateDead { get; set; }
+//    public string? Nationalite { get; set; }
+//}
 
 class Program
 {
     static void Main()
     {
-        // Exemple de liste (remplace par tes données)
-        var persons = new List<TPersonEntity>
+        //// Exemple de liste (remplace par tes données)
+        //var persons_v1 = new List<HelloApi.Models.V1.TPerson>
+        //{
+        //    new() { Nom = "leprince", Prenom = "raph", DateBorn = new DateTime(2025, 9, 10) },
+        //    new() { Nom = "leprince", Prenom = "pieter", DateBorn = new DateTime(1867, 11, 7) },
+        //};
+
+
+        var persons_v2 = new List<HelloApi.Models.V2.TPerson>
         {
-            new() { Nom = "raph", Prenom = "raph", DateBorn = new DateTime(2025, 9, 10) },
-            new() { Nom = "marie", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
-            //new() { Nom = "marc", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
-            //new() { Nom = "audric", Prenom = "curie", DateBorn = new DateTime(1867, 11, 7), DateDead = new DateTime(1934, 7, 4), Nationalite = "FR" },
+            new() { Nom = "leprince", Prenom = "raph", DateBorn = new DateTime(2025, 9, 10) },
+            new() { Nom = "leprince", Prenom = "pieter", DateBorn = new DateTime(1867, 11, 7) },
+            new() { Nom = "leprince", Prenom = "pierre", DateBorn = new DateTime(1938, 3, 18), DateDead = new DateTime(2018,12,25), Nationalite="FR" },
+            new() { Nom = "leprince", Prenom = "christiane", DateBorn = new DateTime(1944, 11,6),  DateDead = new DateTime(2013,04,21), Nationalite="FR"  },
         };
 
-        string baseUrl = "https://192.168.1.25:5001/api/v1/TPerson/fromqr";
+        string baseUrl = "https://192.168.1.25:5001/api/v2/TPerson/CreateTPersonFromQuery";
 
         var svc = new QrCodeGeneratorService();
-        svc.Generate(persons, baseUrl, new QrCodeGeneratorService.Options
+        svc.Generate(persons_v2, baseUrl, new QrCodeGeneratorService.Options
         {
             OutputDir = "QRCode",
             PdfFileName = "QRCodes.pdf",

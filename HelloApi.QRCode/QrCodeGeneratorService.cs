@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;                 // -> System.Web.HttpUtility (sur .NET Core: ajoute package System.Web.HttpUtility si besoin)
+using HelloApi.Models.V2;
 using PdfSharpCore.Drawing;       // -> PdfSharpCore
 using PdfSharpCore.Pdf;
 using QRCoder;                    // -> QRCoder
@@ -25,9 +26,9 @@ public class QrCodeGeneratorService
 
     /// <summary>
     /// Génère les QR codes (PNG) + un PDF (1 QR par ligne).
-    /// baseUrl = ex. "https://192.168.1.25:5001/api/v1/TPerson/fromqr"
+    /// baseUrl = ex. "https://192.168.1.25:5001/api/v2/TPerson/CreateTPersonFromQuery"
     /// </summary>
-    public void Generate(IEnumerable<TPersonEntity> persons, string baseUrl, Options? opts = null)
+    public void Generate(IEnumerable<TPerson> persons, string baseUrl, Options? opts = null)
     {
         opts ??= new Options();
 
@@ -52,10 +53,13 @@ public class QrCodeGeneratorService
         using var generator = new QRCodeGenerator();
         int index = 1;
 
+        ConsoleColor baseForegroundColor = Console.ForegroundColor;
+
         foreach (var p in persons)
         {
             // 3) Construire & nettoyer l'URL
             string url = Clean(BuildUrl(baseUrl, p));
+            Console.WriteLine(url);
 
             // 4) Générer le QR (bytes PNG)
             using var data = generator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
@@ -105,27 +109,67 @@ public class QrCodeGeneratorService
         }
 
         // 10) Sauver le PDF dans le dossier QRCode
-        string pdfPath = Path.Combine(opts.OutputDir, opts.PdfFileName);
-        pdf.Save(pdfPath);
-        pdf.Close();
-        Console.WriteLine($"PDF généré : {pdfPath}");
+        Console.WriteLine();
+        string pdfPath = SavePDF(opts, pdf);
+        Console.WriteLine();
+        if (!string.IsNullOrEmpty(pdfPath))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Génération du PDF OK : {pdfPath}");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Génération du PDF KO! : {pdfPath}");
+        }
+        Console.ForegroundColor = baseForegroundColor;
+        Console.WriteLine();
+        Console.WriteLine("...");
+    }
+
+    private static string SavePDF(Options opts, PdfDocument pdf)
+    {
+        string pdfPath = string.Empty;
+        try
+        {
+            pdfPath = Path.Combine(opts.OutputDir, opts.PdfFileName);
+            pdf.Save(pdfPath);
+            pdf.Close();
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Erreur sauvegarde PDF '{opts.PdfFileName}': {ex.Message}");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        return pdfPath;
     }
 
     private static void PrepareOutputDir(string dir)
     {
-        if (!Directory.Exists(dir))
+        try
         {
-            Directory.CreateDirectory(dir);
-            return;
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+                return;
+            }
+            // vider PNG et PDF précédents
+            foreach (var file in Directory.GetFiles(dir, "*.png"))
+                File.Delete(file);
+            foreach (var file in Directory.GetFiles(dir, "*.pdf"))
+                File.Delete(file);
         }
-        // vider PNG et PDF précédents
-        foreach (var file in Directory.GetFiles(dir, "*.png"))
-            File.Delete(file);
-        foreach (var file in Directory.GetFiles(dir, "*.pdf"))
-            File.Delete(file);
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Erreur préparation dossier '{dir}': {ex.Message}");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
     }
 
-    private static string BuildUrl(string baseUrl, TPersonEntity p)
+    private static string BuildUrl(string baseUrl, TPerson p)
     {
         var sb = new StringBuilder();
         sb.Append(baseUrl);
