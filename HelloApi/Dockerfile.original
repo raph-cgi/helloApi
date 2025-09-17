@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1
+
+# ---------- Build stage ----------
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy solution and project (single project here)
+COPY HelloApi/HelloApi.csproj HelloApi/
+RUN dotnet restore HelloApi/HelloApi.csproj
+
+# Copy everything and publish
+COPY . .
+RUN dotnet publish HelloApi/HelloApi.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+# ---------- Runtime stage ----------
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+# Kestrel will listen on 8080 inside the container
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Development
+
+# Copy published output
+COPY --from=build /app/publish .
+
+# Keep a seed copy of the SQLite DB inside the image
+RUN mkdir -p /app/seed && \
+    if [ -f "/app/Data/DBPersons.sqlite" ]; then cp /app/Data/DBPersons.sqlite /app/seed/DBPersons.sqlite; fi
+
+# Startup script: initialize the DB file into the mounted volume if missing, then run the app
+RUN printf '%s\n' '#!/bin/sh' \
+    'set -e' \
+    'if [ ! -f "/app/Data/DBPersons.sqlite" ] && [ -f "/app/seed/DBPersons.sqlite" ]; then' \
+    '  echo "Seeding DBPersons.sqlite into volume..."' \
+    '  mkdir -p /app/Data' \
+    '  cp /app/seed/DBPersons.sqlite /app/Data/DBPersons.sqlite' \
+    'fi' \
+    'exec dotnet HelloApi.dll' > /app/entrypoint.sh \
+ && chmod +x /app/entrypoint.sh
+
+EXPOSE 8080
+ENTRYPOINT ["/app/entrypoint.sh"]

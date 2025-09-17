@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  helloapi:
+    image: helloapi:dev
+    build:
+      context: .
+      dockerfile: HelloApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      # Décommente si tu ne peux pas toucher appsettings.json :
+      - ConnectionStrings__DefaultConnection=Data Source=/app/Data/DBPersons.sqlite
+    ports:
+      - "5000:8080"          # hôte:conteneur (HTTP)
+    volumes:
+      - DBPersons_Data:/app/Data  # SQLite persistant
+
+volumes:
+  DBPersons_Data:
+    external: true
