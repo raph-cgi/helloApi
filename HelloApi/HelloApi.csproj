@@ -7,9 +7,11 @@
     <UserSecretsId>bb384774-339c-472d-a2e4-1e9715be1446</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\v2\TPersonEntity.cs" />
     <Compile Remove="Models\v2\TPersonneEntity.cs" />
   </ItemGroup>
 
@@ -28,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ExampleData\DBPersons.sqlite">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Data\DBPersons.sqlite">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

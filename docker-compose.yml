@@ -2,5 +2,5 @@ services:
   helloapi:
     image: ${DOCKER_REGISTRY-}helloapi
     build:
-      context: .
-      dockerfile: HelloApi/Dockerfile
+      context: HelloApi
+      dockerfile: Dockerfile

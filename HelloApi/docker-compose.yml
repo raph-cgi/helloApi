@@ -1,20 +1,45 @@
 version: "3.9"
+
 services:
   helloapi:
-    image: helloapi:dev
     build:
       context: .
-      dockerfile: HelloApi/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-      # Décommente si tu ne peux pas toucher appsettings.json :
-      - ConnectionStrings__DefaultConnection=Data Source=/app/Data/DBPersons.sqlite
+      dockerfile: Dockerfile
+    container_name: helloapi
     ports:
-      - "5000:8080"          # hôte:conteneur (HTTP)
+      - "8080:8080"  # HTTP
+      - "8081:8081"  # HTTPS
+    environment:
+      # EF / SQLite
+      ConnectionStrings__DefaultConnection: "Data Source=/app/Data/DBPersons.sqlite"
+      ASPNETCORE_ENVIRONMENT: "Production"
+
+      # Kestrel Endpoints (HTTP + HTTPS)
+      Kestrel__Endpoints__Http__Url: "http://+:8080"
+      Kestrel__Endpoints__Https__Url: "https://+:8081"
+      Kestrel__Endpoints__Https__Certificate__Path: "/https/helloapi.pfx"
+      Kestrel__Endpoints__Https__Certificate__Password: "HelloApi!2025"
     volumes:
-      - DBPersons_Data:/app/Data  # SQLite persistant
+      - DBPersonns_Data:/app/Data   # volume persistant pour la base
+      - ./certs:/https:ro           # montage du certificat PFX
+    # PrÃ©pare le volume (droits + seed) puis lance l'app
+    user: "0:0"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        APP_UID=64198; APP_GID=64198
+        mkdir -p /app/Data
+        chown -R ${APP_UID}:${APP_GID} /app/Data
+        if [ ! -f /app/Data/DBPersons.sqlite ] && [ -f /app/seed/DBPersons.sqlite ]; then
+          cp /app/seed/DBPersons.sqlite /app/Data/DBPersons.sqlite
+          chown ${APP_UID}:${APP_GID} /app/Data/DBPersons.sqlite
+        fi
+        echo "Using cert: $${ASPNETCORE_Kestrel__Certificates__Default__Path}"
+        echo "HTTPS URLs: $${ASPNETCORE_URLS}"
+        exec dotnet /app/HelloApi.dll
+    restart: unless-stopped
 
 volumes:
-  DBPersons_Data:
-    external: true
+  DBPersonns_Data:

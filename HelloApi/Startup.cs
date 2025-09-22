@@ -30,6 +30,7 @@ public class Startup
         services.AddControllers();
 
         // DI Context
+        Console.WriteLine($"Connection string: {_configuration.GetConnectionString("DefaultConnection")}");
         services.AddDbContext<HelloApiContext>(options => options.UseSqlite(_configuration.GetConnectionString("DefaultConnection")));
 
         // DI repository

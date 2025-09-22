@@ -10,7 +10,7 @@ namespace HelloApi.Models.V1
         public DateTime DateBorn { get; set; }
         public DateTime? DateDead { get; set; }
 
-        // Conversion implicite vers TPersonneEntity
+        // Conversion implicite vers TPersonEntity
         public static implicit operator TPersonEntity(TPerson person)
         {
             if (person == null) return null;
