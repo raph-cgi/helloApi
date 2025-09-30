@@ -69,12 +69,14 @@ public class Startup
         }
 
         app.UseRouting();
+
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints => endpoints.MapControllers());
 
-        app.UseSwagger();
+        app.UseHttpsRedirection();
 
+        app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
             foreach (var desc in provider.ApiVersionDescriptions)

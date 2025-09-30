@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   helloapi:
     build:
@@ -7,37 +5,44 @@ services:
       dockerfile: Dockerfile
     container_name: helloapi
     ports:
-      - "8080:8080"  # HTTP
-      - "8081:8081"  # HTTPS
+      - "8080:8080"   # HTTP
+      - "8081:8081"   # HTTPS
     environment:
-      # EF / SQLite
+      # --- App / DB
+      ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Data Source=/app/Data/DBPersons.sqlite"
-      ASPNETCORE_ENVIRONMENT: "Production"
 
-      # Kestrel Endpoints (HTTP + HTTPS)
-      Kestrel__Endpoints__Http__Url: "http://+:8080"
-      Kestrel__Endpoints__Https__Url: "https://+:8081"
-      Kestrel__Endpoints__Https__Certificate__Path: "/https/helloapi.pfx"
-      Kestrel__Endpoints__Https__Certificate__Password: "HelloApi!2025"
+      # --- HTTPS (UNE seule source de vérité)
+      ASPNETCORE_URLS: "http://+:8080;https://+:8081"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/helloapi.pfx"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: 'HelloApi!2025'
+
+      # --- UID/GID dispo dans le conteneur
+      APP_UID: "64198"
+      APP_GID: "64198"
     volumes:
-      - DBPersonns_Data:/app/Data   # volume persistant pour la base
-      - ./certs:/https:ro           # montage du certificat PFX
-    # Prépare le volume (droits + seed) puis lance l'app
-    user: "0:0"
+      - DBPersonns_Data:/app/Data       # volume persistant pour la base
+      - ./certs:/https:ro               # cert PFX monté ici
+    user: "0:0"                          # on seed/chown en root puis on lance
     entrypoint:
       - /bin/sh
       - -c
       - |
         set -e
-        APP_UID=64198; APP_GID=64198
+        APP_UID=$${APP_UID:-64198}
+        APP_GID=$${APP_GID:-64198}
+
+        # Prépare le volume et seed la DB au 1er démarrage
         mkdir -p /app/Data
-        chown -R ${APP_UID}:${APP_GID} /app/Data
+        chown -R $${APP_UID}:$${APP_GID} /app/Data
         if [ ! -f /app/Data/DBPersons.sqlite ] && [ -f /app/seed/DBPersons.sqlite ]; then
           cp /app/seed/DBPersons.sqlite /app/Data/DBPersons.sqlite
-          chown ${APP_UID}:${APP_GID} /app/Data/DBPersons.sqlite
+          chown $${APP_UID}:$${APP_GID} /app/Data/DBPersons.sqlite
         fi
-        echo "Using cert: $${ASPNETCORE_Kestrel__Certificates__Default__Path}"
-        echo "HTTPS URLs: $${ASPNETCORE_URLS}"
+
+        echo "ASPNETCORE_URLS=$${ASPNETCORE_URLS}"
+        echo "CERT_PATH=$${ASPNETCORE_Kestrel__Certificates__Default__Path}"
+
         exec dotnet /app/HelloApi.dll
     restart: unless-stopped
 
