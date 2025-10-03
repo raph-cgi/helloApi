@@ -54,3 +54,44 @@ The project is organized into the following directories and files:
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
+
+
+
+
+##CMD Instructions
+
+To create and run the HelloApi project, follow these command-line instructions:
+
+docker compose down
+docker compose up -d --build
+docker compose restart helloapi
+
+docker exec -it helloapi_api_1 bash
+
+dotnet new webapi -n HelloApi
+
+cd HelloApi
+
+Remove-Item .\certs\helloapi.pfx -Force
+dotnet dev-certs https --trust
+dotnet dev-certs https -ep "$PWD\certs\helloapi.pfx" -p "HelloApi!2025"
+
+
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+
+dotnet add package Microsoft.EntityFrameworkCore.Design
+
+dotnet add package Swashbuckle.AspNetCore
+
+dotnet add package Microsoft.AspNetCore.Mvc.Versioning
+
+dotnet add package Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
+
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+
+dotnet ef migrations add InitialCreate
+
+dotnet ef database update
+dotnet run
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+	

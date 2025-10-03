@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.suo
+**/*.swp
+**/*.tmp
+**/*.log
+**/*.md
+**/Data/DBPersons.sqlite
+Dockerfile*
+docker-compose*.yml
+*.zip

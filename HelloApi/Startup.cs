@@ -30,6 +30,7 @@ public class Startup
         services.AddControllers();
 
         // DI Context
+        Console.WriteLine($"Connection string: {_configuration.GetConnectionString("DefaultConnection")}");
         services.AddDbContext<HelloApiContext>(options => options.UseSqlite(_configuration.GetConnectionString("DefaultConnection")));
 
         // DI repository
@@ -68,12 +69,14 @@ public class Startup
         }
 
         app.UseRouting();
+
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints => endpoints.MapControllers());
 
-        app.UseSwagger();
+        app.UseHttpsRedirection();
 
+        app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
             foreach (var desc in provider.ApiVersionDescriptions)

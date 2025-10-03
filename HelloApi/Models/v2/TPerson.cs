@@ -12,7 +12,7 @@ namespace HelloApi.Models.V2
         public string? Nationalite { get; set; } // Exemple de différence
 
 
-        // Conversion implicite vers TPersonneEntity
+        // Conversion implicite vers TPersonEntity
         public static implicit operator TPersonEntity(TPerson person)
         {
             if (person == null) return null;
