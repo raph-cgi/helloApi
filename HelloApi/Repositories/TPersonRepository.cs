@@ -1,9 +1,10 @@
 using HelloApi.Entities;
+using HelloApi.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace HelloApi.Data
+namespace HelloApi.Repositories
 {
-    public interface ITPersonRepository
+   public interface ITPersonRepository
     {
         Task<IEnumerable<TPersonEntity>> GetAllAsync();
         Task<TPersonEntity?> GetByIdAsync(int id);

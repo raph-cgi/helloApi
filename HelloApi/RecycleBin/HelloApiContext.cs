@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using HelloApi.Entities;
+﻿using HelloApi.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Globalization;
 
-namespace HelloApi.Data
+namespace HelloApi.RecycleBin
 {
     public class HelloApiContext : DbContext
     {
@@ -31,7 +31,7 @@ namespace HelloApi.Data
 
             var deadDateConverter = new ValueConverter<DateTime?, string>(
                 v => v.HasValue ? v.Value.ToString("yyyy-MM-dd") : null,
-                v => string.IsNullOrWhiteSpace(v) ? (DateTime?)null : FixDate(v)
+                v => string.IsNullOrWhiteSpace(v) ? null : FixDate(v)
             );
 
 

@@ -33,13 +33,15 @@ class Program
 
         var persons_v2 = new List<HelloApi.Models.V2.TPerson>
         {
-            new() { Nom = "leprince", Prenom = "raph", DateBorn = new DateTime(2025, 9, 10) },
-            new() { Nom = "leprince", Prenom = "pieter", DateBorn = new DateTime(1867, 11, 7) },
-            new() { Nom = "leprince", Prenom = "pierre", DateBorn = new DateTime(1938, 3, 18), DateDead = new DateTime(2018,12,25), Nationalite="FR" },
-            new() { Nom = "leprince", Prenom = "christiane", DateBorn = new DateTime(1944, 11,6),  DateDead = new DateTime(2013,04,21), Nationalite="FR"  },
+            new() { Nom = "leprince", Prenom = "raph", DateBorn = new DateOnly(2025, 9, 10) },
+            new() { Nom = "leprince", Prenom = "pieter", DateBorn = new DateOnly(1867, 11, 7) },
+            new() { Nom = "leprince", Prenom = "pierre", DateBorn = new DateOnly(1938, 3, 18), DateDead = new DateOnly(2018,12,25), Nationalite="FR" },
+            new() { Nom = "leprince", Prenom = "christiane", DateBorn = new DateOnly(1944, 11,6),  DateDead = new DateOnly(2013,04,21), Nationalite="FR"  },
         };
 
         string baseUrl = "https://192.168.1.25:5001/api/v2/TPerson/CreateTPersonFromQuery";
+
+        baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdLbzAmKd-p5z3SbRD8NQUo7sqSCmHYn-mIX9oJH2EO7ITL4g/viewform?usp=dialog";
 
         var svc = new QrCodeGeneratorService();
         svc.Generate(persons_v2, baseUrl, new QrCodeGeneratorService.Options

@@ -1,8 +1,8 @@
-﻿using HelloApi.Data; // Change this to the correct namespace where TPerson and HelloApiContext are defined
+﻿using HelloApi.Models.V2;
 using HelloApi.Entities;
-using HelloApi.Models.V2;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using HelloApi.Repositories;
 
 namespace HelloApi.Controllers.V2
 {
@@ -52,8 +52,8 @@ namespace HelloApi.Controllers.V2
         public async Task<IActionResult> CreateTPersonFromQuery(
         [FromQuery] string nom,
         [FromQuery] string prenom,
-        [FromQuery] DateTime dateBorn,
-        [FromQuery] DateTime? dateDead = null,
+        [FromQuery] DateOnly dateBorn,
+        [FromQuery] DateOnly? dateDead = null,
         [FromQuery] string? nationalite= null) 
         {
             if (string.IsNullOrWhiteSpace(nom) || string.IsNullOrWhiteSpace(prenom))

@@ -7,8 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using HelloApi;
-using HelloApi.Data;
 using Microsoft.EntityFrameworkCore;
+using HelloApi.Contexts;
+using HelloApi.Repositories;
 
 
 
@@ -35,6 +36,7 @@ public class Startup
 
         // DI repository
         services.AddScoped<ITPersonRepository, TPersonRepository>();
+        services.AddScoped<ITStockPartRepository, TStockPartRepository>();
 
         services.AddApiVersioning(options =>
         {

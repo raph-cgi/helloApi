@@ -1,6 +1,7 @@
-﻿using HelloApi.Data; // Change this to the correct namespace where TPerson and HelloApiContext are defined
-using HelloApi.Entities;
+﻿using HelloApi.Entities;
 using HelloApi.Models.V1;
+using HelloApi.RecycleBin;
+using HelloApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -31,7 +32,7 @@ namespace HelloApi.Controllers.V1
         public async Task<ActionResult<TPerson>> GetById(int id)
         {
             var entity = await _repository.GetByIdAsync(id);
-            if (entity == null)
+            if (entity==null)
             {
                 return NotFound();
             }
@@ -52,8 +53,8 @@ namespace HelloApi.Controllers.V1
         public async Task<IActionResult> CreateTPersonFromQuery(
         [FromQuery] string nom,
         [FromQuery] string prenom,
-        [FromQuery] DateTime dateBorn,
-        [FromQuery] DateTime? dateDead = null) // ✅ Nullable
+        [FromQuery] DateOnly dateBorn,
+        [FromQuery] DateOnly? dateDead = null) // ✅ Nullable
         {
             if (string.IsNullOrWhiteSpace(nom) || string.IsNullOrWhiteSpace(prenom))
                 return BadRequest("Nom et prénom sont obligatoires");

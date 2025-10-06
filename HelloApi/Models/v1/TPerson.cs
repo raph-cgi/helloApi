@@ -1,4 +1,5 @@
 using HelloApi.Entities;
+using HelloApi.RecycleBin;
 
 namespace HelloApi.Models.V1
 {
@@ -7,8 +8,8 @@ namespace HelloApi.Models.V1
         public int Id { get; set; }
         public string Nom { get; set; }
         public string Prenom { get; set; }
-        public DateTime DateBorn { get; set; }
-        public DateTime? DateDead { get; set; }
+        public DateOnly DateBorn { get; set; }
+        public DateOnly? DateDead { get; set; }
 
         // Conversion implicite vers TPersonEntity
         public static implicit operator TPersonEntity(TPerson person)
